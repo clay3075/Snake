@@ -5,6 +5,7 @@ from   random import randint
 RED   = (220, 20, 60)
 BLACK = (0,0,0)
 GREEN = (110, 139, 61)
+WHITE = (255, 255, 255)
 
 LEFT, RIGHT, UP, DOWN = 0, 1, 2, 3
 
@@ -17,7 +18,6 @@ class Snake_Game:
         self.clock   = None
         self.size    = self.width, self.height = 640, 400
         self.gameOver = False 
-        self.font    = None
         self.snake   = None
         self.food    = None
  
@@ -25,9 +25,9 @@ class Snake_Game:
         pygame.init()
         self.screen = pygame.display.set_mode(self.size, pygame.HWSURFACE | pygame.DOUBLEBUF)
         self.clock  = pygame.time.Clock()
-        self.font   = pygame.font.Font(None, 36)
         self.snake  = Player(self.screen)
         self.food   = Apples(self.screen, self.snake)
+        self.UI_manager = UI_Manager(self.screen)
         self.running = True
         self.snake.create()
         pygame.time.set_timer(CREATE_APPLE_EVENT, 3000)
@@ -44,6 +44,8 @@ class Snake_Game:
             self.snake.move()
             self.checkCollision()        
             self.checkGameOver()
+        else:
+            self.checkPlayAgain()
 
 
     def render(self):
@@ -54,19 +56,11 @@ class Snake_Game:
             self.snake.show()
             self.food.show()
             self.clock.tick(8)
+            self.UI_manager.update_score(self.snake.get_links())
         else:
-            self.show_gameOverScreen()
+            self.UI_manager.show_gameOverScreen()
 
         pygame.display.update()
-
-    def show_gameOverScreen(self):
-
-        # If game over is true, draw game over
-        text = self.font.render("Game Over", True, RED)
-        text_rect = text.get_rect()
-        text_x = self.screen.get_width() / 2 - text_rect.width / 2
-        text_y = self.screen.get_height() / 2 - text_rect.height / 2
-        self.screen.blit(text, [text_x, text_y])
 
     def checkGameOver(self):
         if not self.screen.get_rect().contains(self.snake.get_links()[0]):
@@ -82,6 +76,20 @@ class Snake_Game:
                     self.food.remove(food)
                     self.snake.grow()
 
+    def checkPlayAgain(self):
+
+        key = pygame.key.get_pressed()
+        if key[pygame.K_RETURN]:
+            self.reset()
+
+    def reset(self):
+
+        self.snake  = Player(self.screen)
+        self.food   = Apples(self.screen, self.snake)
+        self.UI_manager = UI_Manager(self.screen)
+        self.snake.create()
+        self.gameOver = False 
+
     def cleanup(self):
         pygame.quit()
  
@@ -95,6 +103,42 @@ class Snake_Game:
             self.loop()
             self.render()
         self.cleanup()
+
+class UI_Manager:
+    def __init__(self, screen):
+        self.screen = screen
+        self.score  = 0
+
+    def show_gameOverScreen(self):
+
+        # If game over is true, draw game over
+        font   = pygame.font.Font(None, 36)
+        text = font.render("Game Over", True, RED)
+        text_rect = text.get_rect()
+        text_x = self.screen.get_width() / 2 - text_rect.width / 2
+        text_y = self.screen.get_height() / 2 - text_rect.height / 2
+        self.screen.blit(text, [text_x, text_y])
+        font   = pygame.font.Font(None, 26)
+        text = font.render("Score: " + self.score, True, WHITE)
+        text_rect = text.get_rect()
+        text_x += 30
+        text_y += 35
+        self.screen.blit(text, [text_x, text_y])
+        font   = pygame.font.Font(None, 16)
+        text = font.render("Press ENTER to play again.", True, WHITE)
+        text_rect = text.get_rect()
+        text_x -= 35
+        text_y += 35
+        self.screen.blit(text, [text_x, text_y])
+
+    def update_score(self, snake_links):
+        font   = pygame.font.Font(None, 16)
+        self.score = str(len(snake_links))
+        text = font.render("Score: " + self.score, True, WHITE)
+        text_rect = text.get_rect()
+        text_x = self.screen.get_width() - text_rect.width - 50
+        text_y = text_rect.height + 5
+        self.screen.blit(text, [text_x, text_y])
 
 class Apples:
     def __init__(self, screen, snake):
