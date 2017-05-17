@@ -3,7 +3,7 @@ from   pygame.locals import *
 from   random import randint
 
 RED   = (220, 20, 60)
-BLACK = (0,0,0)
+BLACK = (0, 0, 0)
 GREEN = (110, 139, 61)
 WHITE = (255, 255, 255)
 
@@ -13,22 +13,22 @@ CREATE_APPLE_EVENT = 22
  
 class Snake_Game:
     def __init__(self):
-        self.running = True
-        self.screen  = None
-        self.clock   = None
-        self.size    = self.width, self.height = 640, 400
+        self.running  = True
+        self.screen   = None
+        self.clock    = None
+        self.size     = self.width, self.height = 640, 400
         self.gameOver = False 
-        self.snake   = None
-        self.food    = None
+        self.snake    = None
+        self.food     = None
  
     def init(self):
         pygame.init()
-        self.screen = pygame.display.set_mode(self.size, pygame.HWSURFACE | pygame.DOUBLEBUF)
-        self.clock  = pygame.time.Clock()
-        self.snake  = Player(self.screen)
-        self.food   = Apples(self.screen, self.snake)
+        self.screen     = pygame.display.set_mode(self.size, pygame.HWSURFACE | pygame.DOUBLEBUF)
+        self.clock      = pygame.time.Clock()
+        self.snake      = Player(self.screen)
+        self.food       = Apples(self.screen, self.snake)
         self.UI_manager = UI_Manager(self.screen)
-        self.running = True
+        self.running    = True
         self.snake.create()
         pygame.time.set_timer(CREATE_APPLE_EVENT, 3000)
  
@@ -84,11 +84,11 @@ class Snake_Game:
 
     def reset(self):
 
-        self.snake  = Player(self.screen)
-        self.food   = Apples(self.screen, self.snake)
+        self.snake      = Player(self.screen)
+        self.food       = Apples(self.screen, self.snake)
         self.UI_manager = UI_Manager(self.screen)
         self.snake.create()
-        self.gameOver = False 
+        self.gameOver   = False 
 
     def cleanup(self):
         pygame.quit()
