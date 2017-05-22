@@ -1,11 +1,15 @@
 import pygame
 from   pygame.locals import *
-from   random import randint
+from   random        import randint
+from   threading     import Timer
 
 RED   = (220, 20, 60)
 BLACK = (0, 0, 0)
 GREEN = (110, 139, 61)
 WHITE = (255, 255, 255)
+BROWN = (102, 51, 0)
+
+TIME_BEFORE_ROTTEN = 15.00
 
 LEFT, RIGHT, UP, DOWN = 0, 1, 2, 3
 
@@ -73,8 +77,11 @@ class Snake_Game:
             for food in self.food.get_food():
                 colision = pygame.sprite.collide_rect(link, food)
                 if colision == True:
-                    self.food.remove(food)
-                    self.snake.grow()
+                    if not food.rotten:
+                        self.food.remove(food)
+                        self.snake.grow()
+                    else:
+                        self.gameOver = True
 
     def checkPlayAgain(self):
 
@@ -167,7 +174,7 @@ class Apples:
                 if (x > (link.x + 16) and y > (link.y + 16)) or (x < (link.x - 16) and y < (link.y - 16)):
                     success = True
 
-        self.apples.append(Apple(RED, 16, 16, (x, y)))
+        self.apples.append(Apple(RED, 16, 16,(x, y)))
 
     def show(self):
         for apple in self.apples:
@@ -265,6 +272,7 @@ class Apple(pygame.sprite.Sprite):
        pygame.sprite.Sprite.__init__(self)
        self.x = location[0]
        self.y = location[1]
+       self.rotten = False
        print("X:{}\nY:{}\n".format(self.x, self.y))
 
        self.image = pygame.Surface([width, height])
@@ -273,11 +281,19 @@ class Apple(pygame.sprite.Sprite):
        # Fetch the rectangle object that has the dimensions of the image
        # Update the position of this object by setting the values of rect.x and rect.y
        self.rect = self.image.get_rect()
+       
+       rottenTimer = Timer(TIME_BEFORE_ROTTEN, self.turn_rotten)
+       rottenTimer.start()
 
     #Add this draw function so we can draw individual sprites
     def draw(self, screen):
         self.rect.topleft = (self.x, self.y)
         screen.blit(self.image, (self.x, self.y))
+        
+    def turn_rotten(self):
+    	self.image.fill(BROWN)
+    	self.rotten = True
+    	
  
 if __name__ == "__main__" :
     game = Snake_Game()
